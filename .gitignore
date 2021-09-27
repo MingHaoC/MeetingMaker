@@ -102,3 +102,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Jet brain file
+.idea
+
+# Java
+.mvn
+server/src/main/resources/application-local.properties
+application-local.properties
