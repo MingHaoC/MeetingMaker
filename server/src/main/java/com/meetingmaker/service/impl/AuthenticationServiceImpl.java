@@ -2,6 +2,7 @@ package com.meetingmaker.service.impl;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.uuid.Uuids;
+import com.meetingmaker.component.JwtTokenProvider;
 import com.meetingmaker.entity.User;
 import com.meetingmaker.repository.UserRepository;
 import com.meetingmaker.service.AuthenticationService;
@@ -34,6 +35,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     sendMail sm;
 
+    @Autowired
+    JwtTokenProvider jwtTokenProvider;
+
     @Override
     public ResponseEntity<String> register(User user) {
         // crud repo doesn't support cassandra lightweight transaction, so I used CassandraOperation to insert
@@ -58,8 +62,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             if (query.isPresent()) {
                 User user = query.get();
                 if (user.checkPass(password))
-                    // TODO: when security is added need to return a valid JWT token
-                    return new ResponseEntity<>(HttpStatus.OK);
+                    return new ResponseEntity<>(jwtTokenProvider.generateJwtToken(user), HttpStatus.OK);
             }
             // no user found or incorrect email + password match
             return new ResponseEntity<>("The email and password you enter is invalid", HttpStatus.FORBIDDEN);

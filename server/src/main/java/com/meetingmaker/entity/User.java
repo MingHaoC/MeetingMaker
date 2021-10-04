@@ -1,16 +1,25 @@
 package com.meetingmaker.entity;
 
+import com.datastax.oss.driver.api.core.type.DataType;
+import com.datastax.oss.protocol.internal.ProtocolConstants;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
+import org.springframework.data.cassandra.core.mapping.CassandraType;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Table("user")
-@Data()
+@Setter
+@Getter
 public class User {
 
     @PrimaryKeyColumn(name = "email", type = PrimaryKeyType.PARTITIONED)
@@ -35,6 +44,10 @@ public class User {
     @Column("update_at")
     private Date updatedAt;
 
+    @Column("roles")
+    @CassandraType(type = CassandraType.Name.SET,  typeArguments = { CassandraType.Name.TEXT })
+    private Set<String> roles = new HashSet<>();
+
     public User(String id, String email, String password, String firstName, String lastName, Date createdAt) {
         this.id = id;
         this.email = email;
@@ -43,6 +56,9 @@ public class User {
         this.lastName = lastName;
         this.createdAt = createdAt;
         this.updatedAt = new Date(System.currentTimeMillis());
+
+        this.roles.add("ROLE_USER");
+
     }
 
     /**
@@ -63,60 +79,4 @@ public class User {
         return BCrypt.checkpw(password, this.password);
     }
 
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

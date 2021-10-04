@@ -12,6 +12,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import com.amazonaws.services.simpleemail.model.RawMessage;
 import com.amazonaws.services.simpleemail.model.SendRawEmailRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,6 +21,9 @@ public class sendMail {
     @Autowired
     private AmazonSimpleEmailService amazonSimpleEmailService;
 
+    @Value("${aws.ses.email}")
+    private String FROM;
+
     public void sendEmail(String content, String subject, String to) {
         Session session = Session.getInstance(new Properties(System.getProperties()));
         MimeMessage mimeMessage = new MimeMessage(session);
@@ -27,9 +31,8 @@ public class sendMail {
          try {
              mimeMessage.setSubject(subject, "UTF-8");
 
-             mimeMessage.setFrom("test <minghao2@outlook.com>");
+             mimeMessage.setFrom(FROM);
              mimeMessage.setRecipients(RecipientType.TO, "minghao2@outlook.com");
-
 
              MimeMultipart msgBody = new MimeMultipart("alternative");
              MimeBodyPart wrap = new MimeBodyPart();
@@ -43,14 +46,14 @@ public class sendMail {
              msg.addBodyPart(wrap);
 
              // attachment part
-//             MimeBodyPart messageBodyPart = new MimeBodyPart();
+//           MimeBodyPart messageBodyPart = new MimeBodyPart();
 //
-//             // Attachment pdf file
-//             DataSource source = new FileDataSource(filePath);
-//             messageBodyPart.setDataHandler(new DataHandler(source));
-//             messageBodyPart.setFileName(fileName);
+//           // Attachment pdf file
+//           DataSource source = new FileDataSource(filePath);
+//           messageBodyPart.setDataHandler(new DataHandler(source));
+//           messageBodyPart.setFileName(fileName);
 //
-//             msg.addBodyPart(messageBodyPart);
+//           msg.addBodyPart(messageBodyPart);
 
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              mimeMessage.writeTo(outputStream);
