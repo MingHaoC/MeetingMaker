@@ -1,65 +1,63 @@
 package com.meetingmaker.entity;
 
-import com.datastax.oss.driver.api.core.type.DataType;
-import com.datastax.oss.protocol.internal.ProtocolConstants;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.mindrot.jbcrypt.BCrypt;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
-import org.springframework.data.cassandra.core.mapping.CassandraType;
-import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
-import org.springframework.data.cassandra.core.mapping.Table;
+
+import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
-@Table("user")
-@Setter
+@Entity
 @Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@Table(name = "users")
 public class User {
 
-    @PrimaryKeyColumn(name = "email", type = PrimaryKeyType.PARTITIONED)
+    @Column(name = "id")
+    @GeneratedValue(strategy= GenerationType.AUTO)
     @Id
+    private int id;
+
+    @Column(name = "email", unique = true)
     private String email;
 
-    @Column("password")
+    @Column(name = "password")
     private String password;
 
-    @Column("user_id")
-    private String id;
-
-    @Column("first_name")
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column("last_name")
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column("created_at")
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @ToString.Exclude
+    private Set<Role> roles = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "user_meetings",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "meeting_id"))
+    @ToString.Exclude
+    private Set<Role> meetings = new HashSet<>();
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private Date createdAt;
 
-    @Column("update_at")
+    @UpdateTimestamp
+    @Column(name = "updated_at")
     private Date updatedAt;
-
-    @Column("roles")
-    @CassandraType(type = CassandraType.Name.SET,  typeArguments = { CassandraType.Name.TEXT })
-    private Set<String> roles = new HashSet<>();
-
-    public User(String id, String email, String password, String firstName, String lastName, Date createdAt) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.createdAt = createdAt;
-        this.updatedAt = new Date(System.currentTimeMillis());
-
-        this.roles.add("ROLE_USER");
-
-    }
 
     /**
      * Hash password to be stored in the database
@@ -77,6 +75,15 @@ public class User {
      */
     public boolean checkPass(String password) {
         return BCrypt.checkpw(password, this.password);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        User user = (User) o;
+
+        return Objects.equals(id, user.id);
     }
 
 }

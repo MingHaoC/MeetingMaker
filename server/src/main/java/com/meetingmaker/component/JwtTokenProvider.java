@@ -22,16 +22,8 @@ public class JwtTokenProvider implements Serializable {
     private String JWT_SECRET;
 
     public String generateJwtToken(User user) {
-        System.out.println(getAllClaimsFromToken(Jwts.builder()
-                .setSubject(user.getEmail())
-                .claim("authorities", "ROLE_USER")
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
-                .compact()));
         return Jwts.builder()
-                .setSubject(user.getEmail())
-                .claim("authorities", "ROLE_USER")
+                .setSubject(Integer.toString(user.getId()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)

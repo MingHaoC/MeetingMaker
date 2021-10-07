@@ -1,16 +1,15 @@
 package com.meetingmaker.service.impl;
 
-import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.uuid.Uuids;
 import com.meetingmaker.component.JwtTokenProvider;
+import com.meetingmaker.constant.RoleName;
+import com.meetingmaker.entity.Role;
 import com.meetingmaker.entity.User;
+import com.meetingmaker.repository.RoleRepo;
 import com.meetingmaker.repository.UserRepository;
 import com.meetingmaker.service.AuthenticationService;
-import com.meetingmaker.util.sendMail;
+import com.meetingmaker.util.AppException;
+import com.meetingmaker.util.Mailer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.cassandra.core.CassandraOperations;
-import org.springframework.data.cassandra.core.CassandraTemplate;
-import org.springframework.data.cassandra.core.InsertOptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,8 +17,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -30,23 +28,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     UserRepository userRepository;
 
     @Autowired
-    CqlSession cqlSession;
+    RoleRepo roleRepo;
 
     @Autowired
-    sendMail sm;
+    Mailer mailer;
 
     @Autowired
     JwtTokenProvider jwtTokenProvider;
 
     @Override
     public ResponseEntity<String> register(User user) {
-        // crud repo doesn't support cassandra lightweight transaction, so I used CassandraOperation to insert
-        try {
-            CassandraOperations co = new CassandraTemplate(cqlSession);
-            User newUser = new User(Uuids.random().toString(), user.getEmail(), user.getPassword(), user.getFirstName(), user.getLastName(), new Date(System.currentTimeMillis()));
+            Role userRole = roleRepo.findByName(RoleName.ROLE_USER)
+                    .orElseThrow(() -> new AppException("User Role not set."));
+            user.setRoles(Collections.singleton(userRole));
+            User newUser = new User();
+            newUser.setEmail(user.getEmail());
+            newUser.setFirstName(user.getFirstName());
+            newUser.setLastName(user.getLastName());
+            newUser.setPassword(user.getPassword());
+            newUser.setRoles(Collections.singleton(userRole));
             newUser.hashPassword();
-            if (!co.insert(newUser, InsertOptions.builder().ifNotExists(true).build()).wasApplied())
-                return new ResponseEntity<>("An account with that email already exists", HttpStatus.CONFLICT);
+        try {
+            if(userRepository.findByEmail(newUser.getEmail()).isPresent())
+                return new ResponseEntity<>("The email you enter is already registered on our website", HttpStatus.CONFLICT);
+            userRepository.save(newUser);
             // TODO: send out email to verify user email
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
@@ -58,7 +63,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public ResponseEntity<String> login(String email, String password) {
         try {
-            Optional<User> query = userRepository.findById(email);
+            Optional<User> query = userRepository.findByEmail(email);
             if (query.isPresent()) {
                 User user = query.get();
                 if (user.checkPass(password))
