@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -20,10 +19,10 @@ public class Vote {
     private int id;
 
     @OneToOne(cascade = CascadeType.ALL, targetEntity = User.class)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "user_id")
     private int userId;
 
-    @OneToOne(cascade = CascadeType.ALL, targetEntity = User.class)
-    @JoinColumn(name = "id")
+    @OneToOne(cascade = CascadeType.ALL, targetEntity = Candidate.class)
+    @JoinColumn(name = "candidate_id")
     private int candidateId;
 }

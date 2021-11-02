@@ -38,7 +38,7 @@ public class Meeting {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "meeting_id"))
     @ToString.Exclude
-    private Set<Role> users = new HashSet<>();
+    private Set<User> users = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

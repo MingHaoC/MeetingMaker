@@ -2,14 +2,17 @@ package com.meetingmaker.service.impl;
 
 import com.meetingmaker.component.JwtTokenProvider;
 import com.meetingmaker.constant.RoleName;
+import com.meetingmaker.entity.EmailVerify;
 import com.meetingmaker.entity.Role;
 import com.meetingmaker.entity.User;
+import com.meetingmaker.repository.EmailVerifyRepo;
 import com.meetingmaker.repository.RoleRepo;
 import com.meetingmaker.repository.UserRepository;
 import com.meetingmaker.service.AuthenticationService;
 import com.meetingmaker.util.AppException;
 import com.meetingmaker.util.Mailer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     UserRepository userRepository;
 
     @Autowired
+    EmailVerifyRepo emailVerifyRepo;
+
+    @Autowired
     RoleRepo roleRepo;
 
     @Autowired
@@ -36,23 +42,33 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     JwtTokenProvider jwtTokenProvider;
 
+    @Value("${url}")
+    String url;
+
     @Override
     public ResponseEntity<String> register(User user) {
-            Role userRole = roleRepo.findByName(RoleName.ROLE_USER)
-                    .orElseThrow(() -> new AppException("User Role not set."));
-            user.setRoles(Collections.singleton(userRole));
-            User newUser = new User();
-            newUser.setEmail(user.getEmail());
-            newUser.setFirstName(user.getFirstName());
-            newUser.setLastName(user.getLastName());
-            newUser.setPassword(user.getPassword());
-            newUser.setRoles(Collections.singleton(userRole));
-            newUser.hashPassword();
+        Role userRole = roleRepo.findByName(RoleName.ROLE_USER)
+                .orElseThrow(() -> new AppException("User Role not set."));
+        user.setRoles(Collections.singleton(userRole));
+        User newUser = new User();
+        newUser.setEmail(user.getEmail());
+        newUser.setFirstName(user.getFirstName());
+        newUser.setLastName(user.getLastName());
+        newUser.setPassword(user.getPassword());
+        newUser.setRoles(Collections.singleton(userRole));
+        newUser.setVerify(false);
+        newUser.hashPassword();
         try {
-            if(userRepository.findByEmail(newUser.getEmail()).isPresent())
+            if (userRepository.findByEmail(newUser.getEmail()).isPresent())
                 return new ResponseEntity<>("The email you enter is already registered on our website", HttpStatus.CONFLICT);
             userRepository.save(newUser);
-            // TODO: send out email to verify user email
+            userRepository.flush();
+            UUID uuid = UUID.randomUUID();
+            emailVerifyRepo.save(uuid.toString(), newUser.getId());
+            String emailVerification = mailer.readTemplateFile("EmailVerification.html");
+            emailVerification = emailVerification.replace("%name%", newUser.getFirstName() + " " + newUser.getLastName());
+            emailVerification = emailVerification.replace("%activationLink%", url + "/verify/email/" + uuid);
+            mailer.sendEmail(emailVerification, "Email Verification", "minghao2@outlook.com");
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Something went wrong in the AuthenticationServiceImpl class, register method. Exception: ", e);
@@ -66,7 +82,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             Optional<User> query = userRepository.findByEmail(email);
             if (query.isPresent()) {
                 User user = query.get();
-                if (user.checkPass(password))
+                if (!user.getVerify())
+                    return new ResponseEntity<>("The email is not verify, please check your email inbox to verify this account", HttpStatus.UNAUTHORIZED);
+                else if (user.checkPass(password))
                     return new ResponseEntity<>(jwtTokenProvider.generateJwtToken(user), HttpStatus.OK);
             }
             // no user found or incorrect email + password match
@@ -74,6 +92,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } catch (Exception e) {
             logger.error("Something went wrong in the AuthenticationServiceImpl class, login method. Exception: ", e);
             return new ResponseEntity<>("Server error: Something went wrong while trying to login please try again later", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public ResponseEntity<String> emailVerify(String uuid) {
+        Optional<EmailVerify> query = emailVerifyRepo.findByUuid(uuid);
+        System.out.println(query.isEmpty() + " " + uuid);
+        if (query.isPresent()) {
+            EmailVerify em = query.get();
+            // verify the email
+            userRepository.updateVerify(true, em.getUser().getId());
+            // delete the entry after user have been verified
+            emailVerifyRepo.delete(em);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("The link is invalid", HttpStatus.BAD_REQUEST);
         }
     }
 }

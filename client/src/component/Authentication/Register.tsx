@@ -1,9 +1,10 @@
-import React from "react";
+import React, { FC, useState } from "react";
 import {
   Avatar,
   Box,
   Button,
   Container,
+  FormControl,
   Grid,
   TextField,
   Typography,
@@ -12,16 +13,66 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import CssBaseline from "@mui/material/CssBaseline";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import { register } from "../../actions/index";
+import { AuthenticationData } from "../../actions";
+import validate from "validate.js";
+import constraints from "../../constraints/constraints";
 
-const Register = () => {
+interface Props {
+  register: (formValue: AuthenticationData) => void;
+}
+
+const Register: FC<Props> = (props) => {
+  interface error {
+    firstName?: String;
+    lastName?: String;
+    emailAddress?: String;
+    password?: String;
+  }
+
+  const initalError: error = {
+    firstName: "",
+    lastName: "",
+    emailAddress: "",
+    password: "",
+  };
+
+  // input information
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState(initalError);
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    const error = validate(
+      {
+        firstName: firstName,
+        lastName: lastName,
+        emailAddress: email,
+        password: password,
+      },
+      {
+        firstName: constraints.firstName,
+        lastName: constraints.lastName,
+        emailAddress: constraints.emailAddress,
+        password: constraints.password,
+      }
+    );
+
+    if (error) setErrors(error);
+    else {
+      setErrors(initalError);
+      const formValue: AuthenticationData = {
+        firstName,
+        lastName,
+        email,
+        password,
+      };
+      props.register(formValue);
+    }
   };
 
   const theme = createTheme();
@@ -30,7 +81,7 @@ const Register = () => {
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
-        <Box
+        <FormControl
           sx={{
             marginTop: 8,
             display: "flex",
@@ -51,52 +102,71 @@ const Register = () => {
             onSubmit={handleSubmit}
             sx={{ mt: 3 }}
           >
-            <Grid container spacing={2}>
+            <Grid container spacing={2} style={{ marginBottom: "8px" }}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  margin="normal"
                   required
-                  id="email"
+                  id="firstName"
                   label="First name"
-                  name="email"
-                  autoComplete="email"
+                  name="firstName"
+                  autoComplete="firstName"
+                  onChange={(e) => setFirstName(e.target.value)}
+                  error={!!(errors && errors.firstName)}
+                  helperText={
+                    errors && errors.firstName ? errors.firstName[0] : ""
+                  }
                   fullWidth
                   autoFocus
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  margin="normal"
                   required
-                  id="email"
+                  id="lastName"
                   label="Last name"
+                  name="lastName"
+                  autoComplete="lastName"
+                  onChange={(e) => setLastName(e.target.value)}
+                  error={!!(errors && errors.lastName)}
+                  helperText={
+                    errors && errors.lastName ? errors.lastName[0] : ""
+                  }
+                  fullWidth
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
                   name="email"
                   autoComplete="email"
+                  onChange={(e) => setEmail(e.target.value)}
+                  error={!!(errors && errors.emailAddress)}
+                  helperText={
+                    errors && errors.emailAddress ? errors.emailAddress[0] : ""
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
                   fullWidth
-                  autoFocus
+                  name="password"
+                  label="Password"
+                  type="Password"
+                  id="password"
+                  autoComplete="current-password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  error={!!(errors && errors.password)}
+                  helperText={
+                    errors && errors.password ? errors.password[0] : ""
+                  }
                 />
               </Grid>
             </Grid>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
             <Button
               type="submit"
               fullWidth
@@ -114,10 +184,10 @@ const Register = () => {
               </Grid>
             </Grid>
           </Box>
-        </Box>
+        </FormControl>
       </Container>
     </ThemeProvider>
   );
 };
 
-export default Register;
+export default connect(null, { register })(Register);

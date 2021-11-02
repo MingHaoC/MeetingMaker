@@ -1,12 +1,16 @@
 import api from "./api";
-import { FormData } from "../actions/";
+import { AuthenticationData } from "../actions/";
 
-export const register = (formValue: FormData) => {
-  return api.post("/register", formValue);
+export const register = (formValue: AuthenticationData) => {
+  return api.post("/user/register", formValue);
 };
 
-export const login = (formValue: FormData) => {
-  return api.post("/login", formValue);
+export const login = (formValue: AuthenticationData) => {
+  return api.post("/user/login", formValue);
+};
+
+export const verifyEmail = (uuid: String) => {
+  return api.post("/user/verify/email", { uuid: uuid });
 };
 
 export const refresh = (token: string) => {

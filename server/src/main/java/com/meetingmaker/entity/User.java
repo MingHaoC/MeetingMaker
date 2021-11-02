@@ -19,11 +19,18 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Table(name = "users")
 public class User {
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     @Column(name = "id")
     @GeneratedValue(strategy= GenerationType.AUTO)
     @Id
-    private int id;
+    public Integer id;
 
     @Column(name = "email", unique = true)
     private String email;
@@ -49,7 +56,10 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "meeting_id"))
     @ToString.Exclude
-    private Set<Role> meetings = new HashSet<>();
+    private Set<Meeting> meetings = new HashSet<>();
+
+    @Column(name = "verify")
+    private Boolean verify;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

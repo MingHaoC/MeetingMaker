@@ -34,7 +34,7 @@ const Header: FC<Props> = (props) => {
       <AppBar
         style={{ backgroundColor: "black" }}
         color="default"
-        position="static"
+        position="relative"
       >
         <Toolbar>
           <Typography
@@ -49,7 +49,7 @@ const Header: FC<Props> = (props) => {
           </Typography>
 
           <Typography variant="h6" component="div" sx={{ flexGrow: 0 }}>
-            {renderSignIn(props)}{" "}
+            {renderSignIn(props)}
           </Typography>
         </Toolbar>
       </AppBar>

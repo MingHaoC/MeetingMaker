@@ -18,10 +18,11 @@ export interface AuthenicationInfo {
   token: string;
 }
 
-export interface FormData {
+export interface AuthenticationData {
   email: string;
   password: string;
-  name?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 // Authication actions interfaces
@@ -44,25 +45,24 @@ export interface RefreshAction {
   payload: User;
 }
 
-export const register = (formData: FormData) => (dispatch: Dispatch) => {
-  userServices
-    .register(formData)
-    .then((response: AxiosResponse) => {
-      if (response) {
-        dispatch<RegisterAction>({ type: ActionTypes.REGISTER });
-        history.push("/login");
-      }
-    })
-    .catch((err: AxiosError) => {
-      if (err.response)
-        dispatch<alert.errorAction>(
-          alert.error(err.response.data.error, "error")
-        );
-      else dispatch(alert.error("an error has occurred", "error"));
-    });
-};
+export const register =
+  (formData: AuthenticationData) => (dispatch: Dispatch) => {
+    userServices
+      .register(formData)
+      .then((response: AxiosResponse) => {
+        if (response) {
+          dispatch<RegisterAction>({ type: ActionTypes.REGISTER });
+          history.push("/register/success");
+        }
+      })
+      .catch((err: AxiosError) => {
+        if (err.response)
+          dispatch<alert.errorAction>(alert.error(err.response.data, "error"));
+        else dispatch(alert.error("an error has occurred", "error"));
+      });
+  };
 
-export const login = (formData: FormData) => (dispatch: Dispatch) => {
+export const login = (formData: AuthenticationData) => (dispatch: Dispatch) => {
   userServices
     .login(formData)
     .then((response: AxiosResponse<AuthenicationInfo>) => {
@@ -85,6 +85,29 @@ export const login = (formData: FormData) => (dispatch: Dispatch) => {
         );
     });
 };
+
+export const verifyEmail =
+  (uuid: string) =>
+  (dispatch: Dispatch): Promise<boolean | void> => {
+    return Promise.resolve(
+      userServices
+        .verifyEmail(uuid)
+        .then((response: AxiosResponse) => {
+          return true;
+        })
+        .catch((err: AxiosError) => {
+          if (err.response)
+            dispatch<alert.errorAction>(
+              alert.error(err.response.data.error, "error")
+            );
+          else
+            dispatch<alert.errorAction>(
+              alert.error("An error has occurred", "error")
+            );
+          return false;
+        })
+    );
+  };
 
 export const refresh = () => (dispatch: Dispatch) => {
   const token = localStorage.getItem("token");

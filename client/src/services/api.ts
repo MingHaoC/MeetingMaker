@@ -14,10 +14,12 @@ type CallbackFunction = () => void;
 let isRefreshing = true;
 let subscribers: CallbackFunction[] = [];
 
+const token = localStorage.getItem("token");
+
 const request = axios.create({
-  baseURL: "http://localhost:8081",
+  baseURL: "http://localhost:8080",
   headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
+    Authorization: `${token ? "bear " + token : null}`,
   },
 });
 

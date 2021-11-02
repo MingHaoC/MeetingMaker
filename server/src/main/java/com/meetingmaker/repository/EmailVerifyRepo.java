@@ -1,6 +1,6 @@
 package com.meetingmaker.repository;
 
-import com.meetingmaker.entity.User;
+import com.meetingmaker.entity.EmailVerify;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,13 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
-
-    Optional<User> findByEmail(String email);
+public interface EmailVerifyRepo extends JpaRepository<EmailVerify, String> {
 
     @Modifying
-    @Query(value = "UPDATE users u set u.verify = :verify where u.id = :id", nativeQuery = true)
+    @Query(value = "insert into email_verify (uuid,user_id) VALUES (:uuid,:user_id)", nativeQuery = true)
     @Transactional
-    int updateVerify(@Param(value = "verify") boolean verify, @Param(value = "id") int id);
+    int save(@Param("uuid") String uuid, @Param("user_id") int userId);
+
+    Optional<EmailVerify> findByUuid(String id);
 
 }
