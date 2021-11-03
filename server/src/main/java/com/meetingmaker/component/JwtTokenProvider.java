@@ -24,6 +24,9 @@ public class JwtTokenProvider implements Serializable {
     public String generateJwtToken(User user) {
         return Jwts.builder()
                 .setSubject(Integer.toString(user.getId()))
+                .claim("email", user.getEmail())
+                .claim("name", user.getFirstName() + " " + user.getLastName())
+                .claim("expiresIn", 100000)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)

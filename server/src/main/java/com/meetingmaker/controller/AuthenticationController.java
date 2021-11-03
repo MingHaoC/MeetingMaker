@@ -30,7 +30,6 @@ public class AuthenticationController {
 
     @PostMapping(EMAIL_VERIFY)
     public ResponseEntity<String> emailVerify(@RequestBody EmailVerifyIn data) {
-        System.out.println(data.getUuid());
         return authenticationService.emailVerify(data.getUuid());
     }
 

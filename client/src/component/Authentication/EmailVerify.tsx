@@ -7,7 +7,7 @@ import {
   Container,
   Typography,
 } from "@mui/material";
-import React, { FC, useEffect } from "react";
+import React, { FC, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { useParams } from "react-router";
 import { Link } from "react-router-dom";
@@ -21,11 +21,12 @@ interface Props {
 const EmailVerify: FC<Props> = (props) => {
   const { uuid }: string | null | any = useParams();
 
-  const [open, setOpen] = React.useState(true);
-
+  const [open, setOpen] = useState(true);
+  const [error, setError] = useState(false);
   const test = async () => {
     const check = await props.verifyEmail(uuid);
-    if (check) setOpen(false);
+    setOpen(false);
+    if (!check) setError(true);
   };
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const EmailVerify: FC<Props> = (props) => {
   }, []);
 
   const displaySuccessMessage = () => {
-    if (!open)
+    if (!open && !error)
       return (
         <div>
           <Card
@@ -69,7 +70,51 @@ const EmailVerify: FC<Props> = (props) => {
             <CardContent style={{ textAlign: "center" }}>
               <Link to="/login" style={{ textDecoration: "none" }}>
                 <Button
-                  style={{ borderRadius: 25, backgroundColor: "#90ee90" }}
+                  style={{ borderRadius: 25, backgroundColor: "grey" }}
+                  variant="contained"
+                >
+                  login
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    else if (!open && error)
+      return (
+        <div>
+          <Card
+            sx={{ maxWidth: 345 }}
+            style={{ margin: "auto", marginTop: "64px" }}
+          >
+            <CardContent style={{ backgroundColor: "red" }}>
+              <div
+                style={{
+                  textAlign: "center",
+                  margin: "10% 0 10% 0",
+                  color: "white",
+                }}
+              >
+                <Typography
+                  gutterBottom
+                  variant="h5"
+                  component="div"
+                ></Typography>
+                <Typography gutterBottom variant="h5" component="div">
+                  Error!
+                </Typography>
+              </div>
+            </CardContent>
+            <CardContent>
+              <Typography variant="body2" color="text.secondary">
+                The verification link you have enter is invalid, please contact
+                support!
+              </Typography>
+            </CardContent>
+            <CardContent style={{ textAlign: "center" }}>
+              <Link to="/login" style={{ textDecoration: "none" }}>
+                <Button
+                  style={{ borderRadius: 25, backgroundColor: "grey" }}
                   variant="contained"
                 >
                   login

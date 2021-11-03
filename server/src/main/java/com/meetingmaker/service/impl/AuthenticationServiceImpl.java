@@ -84,8 +84,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 User user = query.get();
                 if (!user.getVerify())
                     return new ResponseEntity<>("The email is not verify, please check your email inbox to verify this account", HttpStatus.UNAUTHORIZED);
-                else if (user.checkPass(password))
+                else if (user.checkPass(password)) {
                     return new ResponseEntity<>(jwtTokenProvider.generateJwtToken(user), HttpStatus.OK);
+                }
             }
             // no user found or incorrect email + password match
             return new ResponseEntity<>("The email and password you enter is invalid", HttpStatus.FORBIDDEN);
@@ -98,7 +99,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public ResponseEntity<String> emailVerify(String uuid) {
         Optional<EmailVerify> query = emailVerifyRepo.findByUuid(uuid);
-        System.out.println(query.isEmpty() + " " + uuid);
         if (query.isPresent()) {
             EmailVerify em = query.get();
             // verify the email

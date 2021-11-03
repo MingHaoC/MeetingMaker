@@ -37,18 +37,16 @@ function newRequest(
 const refreshTokenRequest = () => {
   const token = localStorage.getItem("token");
   if (token)
-    userServices
-      .refresh(token)
-      .then((response: AxiosResponse<AuthenicationInfo>) => {
-        const user = jwtDecode<User>(response.data.token);
-        store.dispatch<RefreshAction>({
-          type: ActionTypes.REFRESH,
-          payload: user,
-        });
-        localStorage.setItem("token", response.data.token);
-        onAccessTokenFetched();
-        isRefreshing = true;
+    userServices.refresh(token).then((response: AxiosResponse<string>) => {
+      const user = jwtDecode<User>(response.data);
+      store.dispatch<RefreshAction>({
+        type: ActionTypes.REFRESH,
+        payload: user,
       });
+      localStorage.setItem("token", response.data);
+      onAccessTokenFetched();
+      isRefreshing = true;
+    });
 };
 
 // Loop through array to excute all callback

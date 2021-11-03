@@ -11,17 +11,27 @@ import {
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Link } from "react-router-dom";
-import React from "react";
+import React, { FC, useState } from "react";
+import { AuthenticationData, login } from "../../actions/";
+import { connect } from "react-redux";
 
-const Login = () => {
+interface Props {
+  login: (data: AuthenticationData) => void;
+}
+
+const Login: FC<Props> = (props) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+
+    const data: AuthenticationData = {
+      email: email,
+      password: password,
+    };
+
+    props.login(data);
   };
 
   return (
@@ -50,6 +60,7 @@ const Login = () => {
             label="Email Address"
             name="email"
             autoComplete="email"
+            onChange={(e) => setEmail(e.target.value)}
             autoFocus
           />
           <TextField
@@ -61,6 +72,7 @@ const Login = () => {
             type="password"
             id="password"
             autoComplete="current-password"
+            onChange={(e) => setPassword(e.target.value)}
           />
           {/* <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
@@ -88,4 +100,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default connect(null, { login })(Login);

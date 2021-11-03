@@ -7,15 +7,16 @@ import jwtDecode from "jwt-decode";
 import * as alert from "./alert";
 
 export interface User {
-  id: number;
+  sbuject: number;
   email: string;
+  name: string;
   exp: number;
   expiresIn: number;
   iat: number;
 }
 
 export interface AuthenicationInfo {
-  token: string;
+  token?: string;
 }
 
 export interface AuthenticationData {
@@ -65,13 +66,14 @@ export const register =
 export const login = (formData: AuthenticationData) => (dispatch: Dispatch) => {
   userServices
     .login(formData)
-    .then((response: AxiosResponse<AuthenicationInfo>) => {
-      const user = jwtDecode<User>(response.data.token);
+    .then((response: AxiosResponse<string>) => {
+      const user = jwtDecode<User>(response.data);
+      console.log("init", user);
       dispatch<LoginAction>({
         type: ActionTypes.SIGN_IN,
         payload: user,
       });
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("token", response.data);
       history.push("/");
     })
     .catch((err: AxiosError) => {
@@ -114,13 +116,13 @@ export const refresh = () => (dispatch: Dispatch) => {
   if (token)
     userServices
       .refresh(token)
-      .then((response: AxiosResponse<AuthenicationInfo>) => {
-        const user = jwtDecode<User>(response.data.token);
+      .then((response: AxiosResponse<string>) => {
+        const user = jwtDecode<User>(response.data);
         dispatch<RefreshAction>({
           type: ActionTypes.REFRESH,
           payload: user,
         });
-        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("token", response.data);
       })
       .catch((err: AxiosError) => {
         if (err.response)
