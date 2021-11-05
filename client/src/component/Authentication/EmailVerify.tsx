@@ -18,22 +18,22 @@ interface Props {
   verifyEmail: (uuid: string) => Promise<boolean | void>;
 }
 
-const EmailVerify: FC<Props> = (props) => {
+const EmailVerify: FC<Props> = ({ verifyEmail }) => {
   const { uuid }: string | null | any = useParams();
 
   const [open, setOpen] = useState(true);
   const [error, setError] = useState(false);
-  const test = async () => {
-    const check = await props.verifyEmail(uuid);
-    setOpen(false);
-    if (!check) setError(true);
-  };
 
   useEffect(() => {
-    if (typeof uuid === "string") {
-      test();
-    } else history.push("/404");
-  }, []);
+    const verify = async () => {
+      const check = await verifyEmail(uuid);
+      setOpen(false);
+      if (!check) setError(true);
+    };
+
+    if (typeof uuid === "string") verify();
+    else history.push("/404");
+  }, [uuid, verifyEmail]);
 
   const displaySuccessMessage = () => {
     if (!open && !error)

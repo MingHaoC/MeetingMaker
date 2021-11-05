@@ -31,11 +31,7 @@ const renderSignIn = (props: Props) => {
 const Header: FC<Props> = (props) => {
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar
-        style={{ backgroundColor: "black" }}
-        color="default"
-        position="relative"
-      >
+      <AppBar color="primary" position="relative">
         <Toolbar>
           <Typography
             variant="h6"
@@ -44,7 +40,7 @@ const Header: FC<Props> = (props) => {
             style={{ color: "white" }}
           >
             <Link className="item" to="/">
-              Meetingmaker
+              MeetingMaker
             </Link>
           </Typography>
 

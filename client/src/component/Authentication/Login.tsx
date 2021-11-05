@@ -2,9 +2,7 @@ import {
   Avatar,
   Box,
   Button,
-  Checkbox,
   Container,
-  FormControlLabel,
   Grid,
   TextField,
   Typography,
@@ -79,6 +77,7 @@ const Login: FC<Props> = (props) => {
             label="Remember me"
           /> */}
           <Button
+            color="secondary"
             type="submit"
             fullWidth
             variant="contained"

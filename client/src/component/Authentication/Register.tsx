@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import CssBaseline from "@mui/material/CssBaseline";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { register } from "../../actions/index";
@@ -75,118 +74,106 @@ const Register: FC<Props> = (props) => {
     }
   };
 
-  const theme = createTheme();
-
   return (
-    <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <FormControl
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign Up
-          </Typography>
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <FormControl
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign Up
+        </Typography>
 
-          <Box
-            component="form"
-            noValidate
-            onSubmit={handleSubmit}
-            sx={{ mt: 3 }}
+        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Grid container spacing={2} style={{ marginBottom: "8px" }}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                required
+                id="firstName"
+                label="First name"
+                name="firstName"
+                autoComplete="firstName"
+                onChange={(e) => setFirstName(e.target.value)}
+                error={!!(errors && errors.firstName)}
+                helperText={
+                  errors && errors.firstName ? errors.firstName[0] : ""
+                }
+                fullWidth
+                autoFocus
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                required
+                id="lastName"
+                label="Last name"
+                name="lastName"
+                autoComplete="lastName"
+                onChange={(e) => setLastName(e.target.value)}
+                error={!!(errors && errors.lastName)}
+                helperText={errors && errors.lastName ? errors.lastName[0] : ""}
+                fullWidth
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                id="email"
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                onChange={(e) => setEmail(e.target.value)}
+                error={!!(errors && errors.emailAddress)}
+                helperText={
+                  errors && errors.emailAddress ? errors.emailAddress[0] : ""
+                }
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="Password"
+                id="password"
+                autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
+                error={!!(errors && errors.password)}
+                helperText={errors && errors.password ? errors.password[0] : ""}
+              />
+            </Grid>
+          </Grid>
+          <Button
+            color="secondary"
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
           >
-            <Grid container spacing={2} style={{ marginBottom: "8px" }}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  id="firstName"
-                  label="First name"
-                  name="firstName"
-                  autoComplete="firstName"
-                  onChange={(e) => setFirstName(e.target.value)}
-                  error={!!(errors && errors.firstName)}
-                  helperText={
-                    errors && errors.firstName ? errors.firstName[0] : ""
-                  }
-                  fullWidth
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  id="lastName"
-                  label="Last name"
-                  name="lastName"
-                  autoComplete="lastName"
-                  onChange={(e) => setLastName(e.target.value)}
-                  error={!!(errors && errors.lastName)}
-                  helperText={
-                    errors && errors.lastName ? errors.lastName[0] : ""
-                  }
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  error={!!(errors && errors.emailAddress)}
-                  helperText={
-                    errors && errors.emailAddress ? errors.emailAddress[0] : ""
-                  }
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="Password"
-                  id="password"
-                  autoComplete="current-password"
-                  onChange={(e) => setPassword(e.target.value)}
-                  error={!!(errors && errors.password)}
-                  helperText={
-                    errors && errors.password ? errors.password[0] : ""
-                  }
-                />
-              </Grid>
+            Sign Up
+          </Button>
+          <Grid container>
+            <Grid item xs>
+              <Link to="/forgotpassword">Forgot password?</Link>
             </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link to="/forgotpassword">Forgot password?</Link>
-              </Grid>
-              <Grid item>
-                <Link to="/login">Already have an account?</Link>
-              </Grid>
+            <Grid item>
+              <Link to="/login">Already have an account?</Link>
             </Grid>
-          </Box>
-        </FormControl>
-      </Container>
-    </ThemeProvider>
+          </Grid>
+        </Box>
+      </FormControl>
+    </Container>
   );
 };
 

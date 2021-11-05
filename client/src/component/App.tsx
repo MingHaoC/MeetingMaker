@@ -1,9 +1,8 @@
-import { Fragment, useEffect } from "react";
 import { Router, Route, Switch } from "react-router-dom";
 import { connect } from "react-redux";
 import { ThemeProvider } from "@mui/system";
 import { Box, Container, CssBaseline } from "@mui/material";
-import { createTheme } from "@mui/material/styles";
+import MainTheme from "../Theme/MainTheme";
 import { refresh } from "../actions/index";
 import Alert from "./Alert";
 import history from "../history";
@@ -19,15 +18,13 @@ interface Props {
   refresh: () => void;
 }
 
-const theme = createTheme();
-
 const App = ({ refresh }: Props) => {
   // useEffect(() => {
   //   refresh();
   // }, [refresh]);
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={MainTheme}>
       <CssBaseline />
       <Container component="main" maxWidth={false} style={{ padding: 0 }}>
         <Router history={history}>

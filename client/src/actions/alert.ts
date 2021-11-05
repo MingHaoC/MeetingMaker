@@ -36,6 +36,5 @@ export const error = (
 };
 
 export const clear = (): clearAction => {
-  console.log("clearing alert state");
   return { type: ActionTypes.CLEAR };
 };
