@@ -1,20 +1,17 @@
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
-import { createStore, applyMiddleware } from "redux";
-import reduxThunk from "redux-thunk";
-import { composeWithDevTools } from "redux-devtools-extension";
+import { PersistGate } from "redux-persist/integration/react";
 
 import App from "./component/App";
-import reducers from "./reducers";
+import { configureRedux } from "./config/ReduxConfig";
 
-export const store = createStore(
-  reducers,
-  composeWithDevTools(applyMiddleware(reduxThunk))
-);
+export const { store, persistor } = configureRedux();
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <PersistGate persistor={persistor}>
+      <App />
+    </PersistGate>
   </Provider>,
   document.getElementById("root")
 );

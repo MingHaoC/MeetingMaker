@@ -22,9 +22,9 @@ interface Props {
 const theme = createTheme();
 
 const App = ({ refresh }: Props) => {
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  // useEffect(() => {
+  //   refresh();
+  // }, [refresh]);
 
   return (
     <ThemeProvider theme={theme}>

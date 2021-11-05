@@ -17,6 +17,10 @@ export interface errorAction {
   payload: alertMessage;
 }
 
+export interface clearAction {
+  type: ActionTypes.CLEAR;
+}
+
 export const success = (
   message: string[] | string,
   alertType: string
@@ -29,4 +33,9 @@ export const error = (
   alertType: string
 ): errorAction => {
   return { type: ActionTypes.ERROR, payload: { message, alertType } };
+};
+
+export const clear = (): clearAction => {
+  console.log("clearing alert state");
+  return { type: ActionTypes.CLEAR };
 };

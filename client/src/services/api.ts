@@ -2,11 +2,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import jwtDecode from "jwt-decode";
 import { store } from "../index";
 import { ActionTypes } from "../actions";
-import {
-  AuthenicationInfo,
-  RefreshAction,
-  User,
-} from "../actions/authentication";
+import { RefreshAction, User } from "../actions/authentication";
 import * as userServices from "../services";
 import history from "../history";
 

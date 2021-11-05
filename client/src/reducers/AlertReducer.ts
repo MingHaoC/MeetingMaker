@@ -19,6 +19,12 @@ export const AlertReducer = (state = initialState, action: AlertAction) => {
         message: action.payload.message,
         alertType: action.payload.alertType,
       };
+    case ActionTypes.CLEAR:
+      return {
+        ...state,
+        message: "",
+        alertType: "",
+      };
     default:
       return state;
   }

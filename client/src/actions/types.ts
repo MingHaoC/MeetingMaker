@@ -5,7 +5,7 @@ import {
   RefreshAction,
 } from "./authentication";
 
-import { successAction, errorAction } from "./alert";
+import { successAction, errorAction, clearAction } from "./alert";
 
 export enum ActionTypes {
   SIGN_IN,
@@ -14,6 +14,7 @@ export enum ActionTypes {
   REFRESH,
   SUCCESS,
   ERROR,
+  CLEAR,
 }
 
 export type AuthenticationAction =
@@ -22,4 +23,4 @@ export type AuthenticationAction =
   | LogoutAction
   | RefreshAction;
 
-export type AlertAction = successAction | errorAction;
+export type AlertAction = successAction | errorAction | clearAction;
